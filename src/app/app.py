@@ -40,16 +40,14 @@ def load_api_json(url: str) -> pd.DataFrame:
 fonte = st.radio("Fonte de dados", ["CSV local", "API pública (JSON)"])
 if fonte == "CSV local":
     path = st.text_input("CSV path", "src/data/cancer_example.csv")
-    if st.button("Carregar CSV"):
-        df = load_csv(path)
-    else:
-        df = None
+    if st.button("Carregar CSV") or "df" not in st.session_state:
+        st.session_state.df = load_csv(path)
+    df = st.session_state.get("df", None)
 else:
     url = st.text_input("API URL", "")
-    if st.button("Chamar API"):
-        df = load_api_json(url)
-    else:
-        df = None
+    if st.button("Chamar API") or "df" not in st.session_state:
+        st.session_state.df = load_api_json(url)
+    df = st.session_state.get("df", None)
 # -----------------------------
 # Exibição e modelo
 # -----------------------------
@@ -71,5 +69,9 @@ if df is not None:
         )
         pred = model.predict([[ano_pred]])[0]
         st.write(f"**Previsão de casos para {ano_pred}: {pred:.0f}**")
+        # Exibe tabela de previsão
+        df_prev = pd.DataFrame({"year": [ano_pred], "predicted_cases": [int(pred)]})
+        st.subheader("Dados previstos")
+        st.dataframe(df_prev)
     else:
         st.warning("O dataset precisa ter colunas 'year' e 'cases'.")

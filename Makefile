@@ -14,3 +14,7 @@ format:
 
 poetry-export:
 	@poetry export --with dev -vv --no-ansi --no-interaction --without-hashes --format requirements.txt --output requirements.txt
+
+
+run: init
+	@poetry run streamlit run src/app/app.py
